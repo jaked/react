@@ -44,7 +44,6 @@ const IssueLabelToken = forwardRef((props, forwardedRef) => {
   const {
     as,
     fillColor = '#999',
-    variant = 'blue',
     onRemove,
     id,
     isSelected,
@@ -84,7 +83,6 @@ const IssueLabelToken = forwardRef((props, forwardedRef) => {
         'calc(((var(--label-r) * 0.2126) + (var(--label-g) * 0.7152) + (var(--label-b) * 0.0722)) / 255)',
       '--lightness-switch': 'max(0, min(calc((var(--perceived-lightness) - var(--lightness-threshold)) * -1000), 1))',
       paddingRight: hideRemoveButton || !onRemove ? undefined : 0,
-      border: `2px solid ${variant}`,
       position: 'relative',
       ...(isLightScheme ? lightModeStyles : darkModeStyles),
       ...(isSelected
