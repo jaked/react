@@ -25,18 +25,12 @@ type colorSchemes =
   | 'dark_high_contrast'
   | 'dark_colorblind'
   | 'dark_tritanopia'
+
 type variantColor = {
   backgroundColor: string
   textColor: string
   borderColor?: string
   backgroundColorHover?: string
-}
-type variant = {
-  light: variantColor
-  light_high_contrast?: variantColor
-  dark_high_contrast?: variantColor
-  dark: variantColor
-  dark_dimmed?: variantColor
 }
 
 const hexRegEx = /^#?(?:(?:[\da-f]{3}){1,2}|(?:[\da-f]{4}){1,2})$/i
@@ -60,109 +54,6 @@ const hsluvToHex = ({h, s, l}: {h: number; s: number; l: number}): string => {
   color.hsluv_l = l
   color.hsluvToHex()
   return color.hex
-}
-
-const variants: {
-  [Property in NewTokenVariants]: variant
-} = {
-  blue: {
-    light: {
-      backgroundColor: '#E5F0FB',
-      backgroundColorHover: '#DAE9F9',
-      textColor: '#005CB6',
-    },
-    light_high_contrast: {
-      backgroundColor: '#E5F0FB',
-      textColor: '#004E9C',
-      borderColor: '#4D99E4',
-    },
-    dark: {
-      backgroundColor: '#13273D',
-      textColor: '#4594E3',
-    },
-    dark_high_contrast: {
-      backgroundColor: '#13273D',
-      textColor: '#80B6EC',
-      borderColor: '#0265C7',
-    },
-    dark_dimmed: {
-      backgroundColor: '#1E3247',
-      textColor: '#4594E3',
-    },
-  },
-  purple: {
-    light: {
-      backgroundColor: '#F0E5FB',
-      textColor: '#6200C3',
-    },
-    dark: {
-      backgroundColor: '#311E4F',
-      textColor: '#AE73EA',
-    },
-  },
-  green: {
-    light: {
-      backgroundColor: '#E5F7EB',
-      textColor: '#00802B',
-    },
-    dark: {
-      backgroundColor: '#133226',
-      textColor: '#00B23B',
-    },
-  },
-  yellow: {
-    light: {
-      backgroundColor: '#FFFCEE',
-      textColor: '#8A7300',
-    },
-    dark: {
-      backgroundColor: '#33352C',
-      textColor: '#EAC404',
-    },
-  },
-  orange: {
-    light: {
-      backgroundColor: '#FFF7F0',
-      textColor: '#B15A01',
-    },
-    dark: {
-      backgroundColor: '#392A1E',
-      textColor: '#FD8104',
-    },
-  },
-  red: {
-    light: {
-      backgroundColor: '#FBE5E6',
-      textColor: '#D60000',
-    },
-    dark: {
-      backgroundColor: '#3B1B20',
-      textColor: '#E75E5E',
-    },
-  },
-  gray: {
-    light: {
-      backgroundColor: '#ECEDEE',
-      textColor: '#434A52',
-    },
-    dark: {
-      backgroundColor: '#2C3139',
-      textColor: '#A8B0B8',
-    },
-  },
-} as const
-
-const getColorScheme = (
-  variant: NewTokenVariants,
-  colorScheme: colorSchemes,
-): Extract<colorSchemes, 'light' | 'dark'> => {
-  if (variant in variants && colorScheme in variants[variant]) {
-    return colorScheme as Extract<colorSchemes, 'light' | 'dark'>
-  }
-  if (colorScheme.startsWith('dark') && variants[variant].hasOwnProperty('dark')) {
-    return 'dark'
-  }
-  return 'light'
 }
 
 const getColorsFromHex = (hex: string, colorScheme: colorSchemes): variantColor => {
@@ -189,7 +80,7 @@ const getColorsFromHex = (hex: string, colorScheme: colorSchemes): variantColor 
   }
 }
 
-const variantColors = (variant: NewTokenVariants, colorScheme: colorSchemes): variantColor => ({
+const variantColors = (variant: NewTokenVariants = 'blue', colorScheme: colorSchemes = 'light'): variantColor => ({
   backgroundColor: `var(--presentational-ui-${variant}-background)`,
   backgroundColorHover: `var(--presentational-ui-${variant}-backgroundHover)`,
   textColor: `var(--presentational-ui-${variant}-text)`,
@@ -203,15 +94,14 @@ const getLabelColors = (
 ): variantColor => {
   // valid variant
   if (variant) {
-    return variantColors(variant, resolvedColorScheme as colorSchemes)
+    return variantColors(variant, resolvedColorScheme)
   }
   // valid hex string
   if (fillColor && isHex(fillColor)) {
-    return getColorsFromHex(fillColor, resolvedColorScheme as colorSchemes)
+    return getColorsFromHex(fillColor, resolvedColorScheme)
   }
   // invalid variant and invalid hex string
-  const fallbackVariant = Object.keys(variants)[0] as NewTokenVariants
-  return variants[fallbackVariant][getColorScheme(fallbackVariant, resolvedColorScheme)]
+  return variantColors('blue', resolvedColorScheme)
 }
 
 const NewToken = forwardRef((props, forwardedRef) => {

@@ -1,48 +1,85 @@
 import React, {useEffect, useState} from 'react'
-import NewToken, {NewTokenVariants} from './NewToken'
+import NewToken, {NewTokenVariants, hexString} from './NewToken'
 import Box from '../Box'
 import {TokenSizeKeys} from './TokenBase'
+import {action} from '@storybook/addon-actions'
 
-const variants = ['blue', 'purple', 'green', 'yellow', 'orange', 'red', 'gray']
+const variants: NewTokenVariants[] = ['blue', 'purple', 'green', 'yellow', 'orange', 'red', 'gray']
 
-const getRandomInt = (min: number, max: number): number => {
-  min = Math.ceil(min)
-  max = Math.floor(max)
-  return Math.floor(Math.random() * (max - min) + min) // The maximum is exclusive and the minimum is inclusive
-}
-
-const getRandomLabel = (): string => {
-  const labels = [
-    'bug',
-    'new',
-    'info needed',
-    'wontfix',
-    'question',
-    'documentation',
-    'figma',
-    'react',
-    'design',
-    'help wanted',
-    'enhancement',
-    'good first issue',
-    'invalid',
-    'duplicate',
-    'feature',
-    'discussion',
+const getRandomLabels = (amount: number, size: TokenSizeKeys): React.ReactNode[] => {
+  const labels: {
+    variant: NewTokenVariants
+    text: string
+  }[] = [
+    {
+      variant: 'red',
+      text: '🐛 bug',
+    },
+    {
+      variant: 'blue',
+      text: 'new',
+    },
+    {
+      variant: 'purple',
+      text: 'info needed',
+    },
+    {
+      variant: 'gray',
+      text: 'wontfix',
+    },
+    {
+      variant: 'purple',
+      text: '📥 Inbox',
+    },
+    {
+      variant: 'yellow',
+      text: 'question',
+    },
+    {
+      variant: 'blue',
+      text: 'documentation',
+    },
+    {
+      variant: 'gray',
+      text: '✅ Done',
+    },
+    {
+      variant: 'green',
+      text: 'enhancement',
+    },
+    {
+      variant: 'orange',
+      text: 'figma',
+    },
   ]
-  return labels[getRandomInt(0, labels.length - 1)]
+
+  // 'documentation',
+  // 'figma',
+  // 'react',
+  // 'design',
+  // 'help wanted',
+  // 'enhancement',
+  // 'good first issue',
+  // 'invalid',
+  // 'duplicate',
+  // 'feature',
+  // 'discussion',
+
+  let substract = 0
+  const result = []
+  for (let i = 0; amount > i; i++) {
+    if (i - substract > labels.length - 1) {
+      substract += labels.length
+    }
+    const {variant, text} = labels[i - substract]
+    result.push(<NewToken key={i} size={size} variant={variant} text={text} />)
+  }
+  return result
 }
 
 export default {
   title: 'Components/NewToken',
   component: NewToken,
-  parameters: {
-    options: {
-      storySort: {
-        order: ['Default', 'CustomHex'],
-      },
-    },
-  },
   args: {
     text: 'Token',
     size: 'medium',
@@ -66,14 +103,14 @@ export default {
   },
 }
 
-const Default = ({
+export const Default = ({
   variant,
   numberOfTokens,
   text,
   size,
   ...args
 }: {
-  variant: NewTokenVariants | string
+  variant: NewTokenVariants
   numberOfTokens: number
   size: TokenSizeKeys
   text: string
@@ -81,18 +118,17 @@ const Default = ({
   const [tokens, setTokens] = useState<React.ReactNode[] | null>(null)
 
   useEffect(() => {
-    setTokens(
-      [...Array(numberOfTokens - 1).keys()].map(i => (
-        <NewToken key={i} size={size} variant={variants[getRandomInt(0, variants.length)]} text={getRandomLabel()} />
-      )),
-    )
+    setTokens(getRandomLabels(numberOfTokens - 1, size))
   }, [numberOfTokens, size])
 
   return (
     <Box
       sx={{
         display: 'flex',
+        flexWrap: 'wrap',
         gap: 2,
+        overflow: 'hidden',
+        padding: 2,
       }}
     >
       <NewToken {...args} size={size} text={text} variant={variant} />
@@ -101,22 +137,141 @@ const Default = ({
   )
 }
 Default.args = {
-  variant: 'blue',
+  variant: variants[0],
   text: 'New Token',
 }
 
-const CustomHex = ({hex, _numberOfTokens, ...args}: {hex: string; numberOfTokens: number}) => {
-  return <NewToken {...args} variant={hex} />
+export const Hex = ({
+  hex,
+  text,
+  size,
+  ...args
+}: {
+  hex: hexString
+  numberOfTokens: number
+  size: TokenSizeKeys
+  text: string
+}) => {
+  return <NewToken {...args} size={size} text={text} fillColor={hex} />
 }
-CustomHex.args = {
+Hex.args = {
   hex: '#59B200',
   text: 'New Token',
+  variant: undefined,
   numberOfTokens: 1,
 }
-CustomHex.argTypes = {
+Hex.argTypes = {
   hex: {control: {type: 'color'}},
   variant: {control: {disable: true}},
   numberOfTokens: {control: {disable: true}},
 }
 
-export {Default, CustomHex}
+export const Sizes = ({text, variant, ...args}: {numberOfTokens: number; variant: NewTokenVariants; text: string}) => {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 2,
+        alignItems: 'center',
+        overflow: 'hidden',
+        padding: 2,
+      }}
+    >
+      <NewToken {...args} size={'small'} text={text} variant={variant} />
+      <NewToken {...args} size={'medium'} text={text} variant={variant} />
+      <NewToken {...args} size={'large'} text={text} variant={variant} />
+      <NewToken {...args} size={'xlarge'} text={text} variant={variant} />
+    </Box>
+  )
+}
+Sizes.args = {
+  text: 'New Token',
+  variant: variants[0],
+}
+Sizes.argTypes = {
+  size: {control: {disable: true}},
+  numberOfTokens: {control: {disable: true}},
+}
+
+export const OnRemove = ({
+  text,
+  variant,
+  size,
+  ...args
+}: {
+  numberOfTokens: number
+  variant: NewTokenVariants
+  size: TokenSizeKeys
+  text: string
+}) => {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 2,
+        alignItems: 'center',
+        overflow: 'hidden',
+        padding: 2,
+      }}
+    >
+      <NewToken {...args} size={size} text={text} variant={variant} onRemove={action('remove me')} />
+    </Box>
+  )
+}
+OnRemove.args = {
+  text: 'New Token',
+  variant: variants[0],
+}
+OnRemove.argTypes = {
+  numberOfTokens: {control: {disable: true}},
+}
+
+export const InteractiveToken = ({variant, size}: {variant: NewTokenVariants; size: TokenSizeKeys}) => {
+  return (
+    <Box
+      sx={{
+        alignItems: 'start',
+        gap: 2,
+        display: 'flex',
+        flexWrap: 'wrap',
+        overflow: 'hidden',
+        padding: 2,
+      }}
+    >
+      <NewToken
+        as="a"
+        href="/?path=/story/components-newtoken--interactive-token"
+        variant={variant}
+        size={size}
+        text="Link"
+      />
+      <NewToken as="button" onClick={action('clicked')} variant={variant} size={size} text="Button" />
+      <NewToken
+        as="span"
+        tabIndex={0}
+        onFocus={action('focused')}
+        variant={variant}
+        size={size}
+        text="Focusable Span"
+      />
+      <NewToken
+        as="button"
+        onClick={action('clicked')}
+        variant={variant}
+        text="Removable Button"
+        size={size}
+        onRemove={action('remove me')}
+      />
+    </Box>
+  )
+}
+
+InteractiveToken.args = {
+  variant: variants[0],
+}
+InteractiveToken.argTypes = {
+  numberOfTokens: {control: {disable: true}},
+  text: {control: {disable: true}},
+}
