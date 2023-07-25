@@ -145,25 +145,29 @@ export const Hex = ({
   hex,
   text,
   size,
+  interactive,
   ...args
 }: {
   hex: hexString
   numberOfTokens: number
   size: TokenSizeKeys
+  interactive: boolean
   text: string
 }) => {
-  return <NewToken {...args} size={size} text={text} fillColor={hex} />
+  return <NewToken {...args} size={size} text={text} fillColor={hex} onClick={interactive ? () => {} : false} />
 }
 Hex.args = {
   hex: '#59B200',
   text: 'New Token',
   variant: undefined,
   numberOfTokens: 1,
+  interactive: true,
 }
 Hex.argTypes = {
   hex: {control: {type: 'color'}},
   variant: {control: {disable: true}},
   numberOfTokens: {control: {disable: true}},
+  interactive: {control: {type: 'boolean'}},
 }
 
 export const Sizes = ({text, variant, ...args}: {numberOfTokens: number; variant: NewTokenVariants; text: string}) => {
