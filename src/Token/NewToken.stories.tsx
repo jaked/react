@@ -1,14 +1,15 @@
 import React, {useEffect, useState} from 'react'
-import NewToken, {NewTokenVariants, hexString} from './NewToken'
+import NewToken, {TokenVariants} from './NewToken'
 import Box from '../Box'
 import {TokenSizeKeys} from './TokenBase'
 import {action} from '@storybook/addon-actions'
+import {hexString} from '../utils/isHex'
 
-const variants: NewTokenVariants[] = ['blue', 'purple', 'green', 'yellow', 'orange', 'red', 'gray']
+const variants: TokenVariants[] = ['blue', 'purple', 'green', 'yellow', 'orange', 'red', 'gray']
 
 const getRandomLabels = (amount: number, size: TokenSizeKeys): React.ReactNode[] => {
   const labels: {
-    variant: NewTokenVariants
+    variant: TokenVariants
     text: string
   }[] = [
     {
@@ -52,18 +53,6 @@ const getRandomLabels = (amount: number, size: TokenSizeKeys): React.ReactNode[]
       text: 'figma',
     },
   ]
-
-  // 'documentation',
-  // 'figma',
-  // 'react',
-  // 'design',
-  // 'help wanted',
-  // 'enhancement',
-  // 'good first issue',
-  // 'invalid',
-  // 'duplicate',
-  // 'feature',
-  // 'discussion',
 
   let substract = 0
   const result = []
@@ -110,7 +99,7 @@ export const Default = ({
   size,
   ...args
 }: {
-  variant: NewTokenVariants
+  variant: TokenVariants
   numberOfTokens: number
   size: TokenSizeKeys
   text: string
@@ -170,7 +159,7 @@ Hex.argTypes = {
   interactive: {control: {type: 'boolean'}},
 }
 
-export const Sizes = ({text, variant, ...args}: {numberOfTokens: number; variant: NewTokenVariants; text: string}) => {
+export const Sizes = ({text, variant, ...args}: {numberOfTokens: number; variant: TokenVariants; text: string}) => {
   return (
     <Box
       sx={{
@@ -205,7 +194,7 @@ export const OnRemove = ({
   ...args
 }: {
   numberOfTokens: number
-  variant: NewTokenVariants
+  variant: TokenVariants
   size: TokenSizeKeys
   text: string
 }) => {
@@ -232,7 +221,7 @@ OnRemove.argTypes = {
   numberOfTokens: {control: {disable: true}},
 }
 
-export const InteractiveToken = ({variant, size}: {variant: NewTokenVariants; size: TokenSizeKeys}) => {
+export const InteractiveToken = ({variant, size}: {variant: TokenVariants; size: TokenSizeKeys}) => {
   return (
     <Box
       sx={{

@@ -8,10 +8,10 @@ import {ForwardRefComponent as PolymorphicForwardRefComponent} from '../utils/po
 import '../../.storybook/primitives-v8.css'
 import {getColorsFromHex} from './getColorsFromHex'
 import {hexString, isHex} from '../utils/isHex'
-export type NewTokenVariants = 'purple' | 'blue' | 'green' | 'yellow' | 'orange' | 'red' | 'gray'
+export type TokenVariants = 'purple' | 'blue' | 'green' | 'yellow' | 'orange' | 'red' | 'gray'
 
 export interface NewTokenProps extends TokenBaseProps {
-  variant?: NewTokenVariants
+  variant?: TokenVariants
   fillColor?: hexString
 }
 
@@ -34,7 +34,7 @@ export type variantColor = {
   backgroundColorPressed?: string
 }
 
-const variantColors = (variant: NewTokenVariants, colorScheme: colorSchemes): variantColor => ({
+const variantColors = (variant: TokenVariants, colorScheme: colorSchemes): variantColor => ({
   backgroundColor: `var(--presentational-ui-${variant}-background)`,
   backgroundColorHover: `var(--presentational-ui-${variant}-backgroundHover)`,
   textColor: `var(--presentational-ui-${variant}-text)`,
@@ -42,7 +42,7 @@ const variantColors = (variant: NewTokenVariants, colorScheme: colorSchemes): va
 })
 
 const getLabelColors = (
-  variant?: NewTokenVariants,
+  variant?: TokenVariants,
   fillColor?: hexString,
   resolvedColorScheme: colorSchemes = 'light',
   bgColor = '#ffffff',
