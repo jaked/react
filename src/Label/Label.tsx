@@ -22,7 +22,7 @@ export type LabelProps = {
       variant?: LabelColorOptions
       /** The style in which the label is rendered */
       filled?: true
-      /** The style in which the label is rendered */
+      /**  */
       deprecatedHexFill?: string
     }
 ) &
@@ -46,64 +46,61 @@ export const newVariants: Record<
   LabelColorOptions,
   {
     backgroundColor: string
+    color: string
   }
 > = {
   default: {
     backgroundColor: 'var(--color-scale-gray-0)',
+    color: 'var(--color-scale-gray-9)',
   },
   primary: {
     backgroundColor: 'var(--color-scale-gray-2)',
+    color: 'var(--color-scale-gray-7)',
   },
   secondary: {
     backgroundColor: 'var(--color-scale-gray-0)',
+    color: 'var(--color-scale-gray-6)',
   },
   accent: {
-    backgroundColor: 'var(--color-scale-gray-0)',
+    backgroundColor: 'var(--color-scale-blue-0)',
+    color: 'var(--color-scale-blue-5)',
   },
   success: {
-    backgroundColor: 'var(--color-scale-gray-0)',
+    backgroundColor: 'var(--color-scale-green-0)',
+    color: 'var(--color-scale-green-5)',
   },
   attention: {
-    backgroundColor: 'var(--color-scale-gray-0)',
+    backgroundColor: 'var(--color-scale-yellow-0)',
+    color: 'var(--color-scale-yellow-5)',
   },
   severe: {
-    backgroundColor: 'var(--color-scale-gray-0)',
+    backgroundColor: 'var(--color-scale-orange-0)',
+    color: 'var(--color-scale-orange-5)',
   },
   danger: {
-    backgroundColor: 'var(--color-scale-gray-0)',
+    backgroundColor: 'var(--color-scale-red-0)',
+    color: 'var(--color-scale-red-5)',
   },
   done: {
-    backgroundColor: 'var(--color-scale-gray-0)',
+    backgroundColor: 'var(--color-scale-purple-0)',
+    color: 'var(--color-scale-purple-5)',
   },
   sponsors: {
-    backgroundColor: 'var(--color-scale-gray-0)',
+    backgroundColor: 'var(--color-scale-pink-0)',
+    color: 'var(--color-scale-pink-5)',
   },
 }
 
-const getVariant = (
-  variant: LabelColorOptions = 'default',
-  filled = false,
-  deprecatedHexFill?: string,
-  colorScheme?: string,
-) => {
-  if (filled && !deprecatedHexFill) {
-    return {
-      color: 'var(--color-scale-gray-9)',
-      backgroundColor: newVariants[variant].backgroundColor,
-      borderWidth: '0',
-    }
-  }
-  if (filled && deprecatedHexFill) {
+const getVariant = (variant: LabelColorOptions = 'default', deprecatedHexFill?: string, colorScheme?: string) => {
+  if (deprecatedHexFill) {
     return {
       ...getColorsFromHex(deprecatedHexFill, colorScheme),
       borderWidth: '0',
     }
   }
   return {
-    color: 'var(--color-scale-gray-9)',
-    borderColor: 'var(--color-scale-gray-2)',
-    backgroundColor: 'transparent',
-    borderWidth: '1px',
+    ...newVariants[variant],
+    borderWidth: '0',
   }
 }
 
@@ -159,7 +156,7 @@ const sizes: Record<LabelSizeKeys, BetterSystemStyleObject> = {
   },
 }
 
-const StyledLabel = styled.span<LabelProps>`
+const StyledLabel = styled.span<LabelProps & {colorScheme: string}>`
   align-items: center;
   border-radius: 999px;
   border-style: solid;
@@ -168,7 +165,9 @@ const StyledLabel = styled.span<LabelProps>`
   font-size: ${get('fontSizes.0')};
   line-height: 1;
   white-space: nowrap;
-  ${prop => getVariant(prop.variant, prop.filled, prop.deprecatedHexFill, prop.colorScheme)};
+  backgroundcolor: 'transparent';
+  borderwidth: '1px';
+  ${prop => (!prop.filled ? variant({variants}) : getVariant(prop.variant, prop.deprecatedHexFill, prop.colorScheme))};
   ${variant({prop: 'size', variants: sizes})};
   ${sx};
 `
