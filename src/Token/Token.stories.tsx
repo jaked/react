@@ -1,6 +1,7 @@
 import React from 'react'
 import Token from './Token'
 import {action} from '@storybook/addon-actions'
+import {StoryFn} from '@storybook/react'
 
 export default {
   title: 'Components/Token',
@@ -11,8 +12,15 @@ export default {
     isSelected: false,
     variant: undefined,
     isInteractive: false,
+    onRemove: false,
+    deprecatedFillColor: undefined,
   },
   argTypes: {
+    text: {
+      control: {
+        type: 'text',
+      },
+    },
     size: {
       control: {
         type: 'radio',
@@ -35,16 +43,27 @@ export default {
         type: 'boolean',
       },
     },
+    onRemove: {
+      control: {
+        type: 'boolean',
+      },
+    },
+    deprecatedFillColor: {
+      control: {
+        type: 'color',
+      },
+    },
   },
 }
 
 export const Default = () => <Token text="token" />
-// @ts-ignore: Object is possibly 'undefined'.
-export const Playground = (isInteractive, onRemove, ...args) => {
+
+export const Playground: StoryFn = args => {
+  const {isInteractive, onRemove, text, ...rest} = args
   return (
-    // @ts-ignore: Object is possibly 'undefined'.
     <Token
-      {...args}
+      text={text}
+      {...rest}
       onClick={isInteractive ? action('clicked') : undefined}
       onRemove={onRemove ? action('remove me') : undefined}
     />

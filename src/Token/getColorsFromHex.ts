@@ -1,6 +1,5 @@
 import {getContrast} from 'color2k'
 import {Hsluv} from 'hsluv'
-import {colorSchemes, variantColor} from './NewToken'
 
 const getColorWithContrast = (colorHex: string, bgHex: string, contrastRatio: number, increment: 1 | -1): string => {
   // deconstruct color
@@ -15,7 +14,7 @@ const getColorWithContrast = (colorHex: string, bgHex: string, contrastRatio: nu
   return colorHex
 }
 
-export const getColorsFromHex = (colorHex: string, bgHex: string, colorScheme: colorSchemes): variantColor => {
+export const getColorsFromHex = (colorHex: string, colorScheme = 'light', isSelected = false) => {
   let bgLightness = 96
   let lightnessIncrement = -1
   let ratio = 4.5
@@ -35,12 +34,14 @@ export const getColorsFromHex = (colorHex: string, bgHex: string, colorScheme: c
   // return
   return {
     backgroundColor,
-    backgroundColorHover: hsluvToHex({h, s, l: bgLightness + 2 * lightnessIncrement}),
-    backgroundColorPressed: hsluvToHex({h, s, l: bgLightness + 4 * lightnessIncrement}),
-    textColor,
-    borderColor: colorScheme.endsWith('high_contrast')
-      ? getColorWithContrast(backgroundColor, bgHex, 3, lightnessIncrement as 1 | -1)
-      : undefined,
+    color: textColor,
+    borderColor: isSelected
+      ? getColorWithContrast(backgroundColor, backgroundColor, 3, lightnessIncrement as 1 | -1)
+      : 'transparent',
+    '&:hover': {
+      backgroundColor: hsluvToHex({h, s, l: bgLightness + 2 * lightnessIncrement}),
+      boxShadow: 'var(--shadow-resting-medium)',
+    },
   }
 }
 

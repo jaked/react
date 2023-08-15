@@ -8,6 +8,8 @@ import TokenTextContainer from './_TokenTextContainer'
 import {ForwardRefComponent as PolymorphicForwardRefComponent} from '../utils/polymorphic'
 import VisuallyHidden from '../_VisuallyHidden'
 import {getVariant} from './getVariant'
+import {getColorsFromHex} from './getColorsFromHex'
+import {useTheme} from '../ThemeProvider'
 
 export type Variant = 'purple' | 'blue' | 'green' | 'yellow' | 'orange' | 'red' | 'gray'
 
@@ -41,6 +43,7 @@ const Token = forwardRef((props, forwardedRef) => {
   const {
     as,
     variant,
+    deprecatedFillColor,
     onRemove,
     id,
     leadingVisual: LeadingVisual,
@@ -53,6 +56,7 @@ const Token = forwardRef((props, forwardedRef) => {
     ...rest
   } = props
   const hasMultipleActionTargets = isTokenInteractive(props) && Boolean(onRemove) && !hideRemoveButton
+  const {resolvedColorScheme: colorScheme} = useTheme()
   const onRemoveClick: MouseEventHandler = e => {
     e.stopPropagation()
     onRemove && onRemove()
@@ -65,13 +69,9 @@ const Token = forwardRef((props, forwardedRef) => {
 
   const sx = merge<BetterSystemStyleObject>(
     {
-      ...(variant
-        ? getVariant(variant, props.isSelected)
-        : {
-            backgroundColor: 'neutral.subtle',
-            borderColor: props.isSelected ? 'fg.default' : 'border.subtle',
-            color: props.isSelected ? 'fg.default' : 'fg.muted',
-          }),
+      backgroundColor: 'neutral.subtle',
+      borderColor: props.isSelected ? 'fg.default' : 'border.subtle',
+      color: props.isSelected ? 'fg.default' : 'fg.muted',
       borderWidth: `${tokenBorderWidthPx}px`,
       borderStyle: 'solid',
       maxWidth: '100%',
@@ -80,11 +80,13 @@ const Token = forwardRef((props, forwardedRef) => {
         ? {
             '&:hover': {
               backgroundColor: 'neutral.muted',
-              boxShadow: 'shadow.medium',
               color: 'fg.default',
+              boxShadow: 'shadow.medium',
             },
           }
         : {}),
+      ...(variant ? getVariant(variant, props.isSelected) : {}),
+      ...(deprecatedFillColor ? getColorsFromHex(deprecatedFillColor, colorScheme, props.isSelected) : {}),
     },
     sxProp,
   )
