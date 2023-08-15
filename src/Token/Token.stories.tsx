@@ -1,6 +1,6 @@
 import React from 'react'
-import {ComponentMeta, ComponentStory} from '@storybook/react'
 import Token from './Token'
+import {action} from '@storybook/addon-actions'
 
 export default {
   title: 'Components/Token',
@@ -8,6 +8,9 @@ export default {
   args: {
     text: 'Token',
     size: 'medium',
+    isSelected: false,
+    variant: undefined,
+    isInteractive: false,
   },
   argTypes: {
     size: {
@@ -16,11 +19,34 @@ export default {
       },
       options: ['small', 'medium', 'large', 'xlarge'],
     },
+    isSelected: {
+      control: {
+        type: 'boolean',
+      },
+    },
+    variant: {
+      control: {
+        type: 'select',
+      },
+      options: [undefined, 'default', 'purple', 'red', 'orange', 'yellow', 'green', 'blue', 'gray'],
+    },
+    isInteractive: {
+      control: {
+        type: 'boolean',
+      },
+    },
   },
-} as ComponentMeta<typeof Token>
+}
 
 export const Default = () => <Token text="token" />
-
-export const Playground: ComponentStory<typeof Token> = args => {
-  return <Token {...args} />
+// @ts-ignore: Object is possibly 'undefined'.
+export const Playground = (isInteractive, onRemove, ...args) => {
+  return (
+    // @ts-ignore: Object is possibly 'undefined'.
+    <Token
+      {...args}
+      onClick={isInteractive ? action('clicked') : undefined}
+      onRemove={onRemove ? action('remove me') : undefined}
+    />
+  )
 }

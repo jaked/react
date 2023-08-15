@@ -7,15 +7,20 @@ import RemoveTokenButton from './_RemoveTokenButton'
 import TokenTextContainer from './_TokenTextContainer'
 import {ForwardRefComponent as PolymorphicForwardRefComponent} from '../utils/polymorphic'
 import VisuallyHidden from '../_VisuallyHidden'
+import {getVariant} from './getVariant'
+
+export type Variant = 'purple' | 'blue' | 'green' | 'yellow' | 'orange' | 'red' | 'gray'
 
 // Omitting onResize and onResizeCapture because seems like React 18 types includes these menthod in the expansion but React 17 doesn't.
 // TODO: This is a temporary solution until we figure out why these methods are causing type errors.
 export interface TokenProps extends TokenBaseProps, SxProp {
-  /**
-   * A function that renders a component before the token text
-   */
+  /** A function that renders a component before the token text */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   leadingVisual?: React.ComponentType<React.PropsWithChildren<any>>
+  /** hex string that changes the color of a token, only for backwards compatibility */
+  deprecatedFillColor?: string
+  /** the name of a variant that changed the color fo the token */
+  variant?: Variant
 }
 
 const tokenBorderWidthPx = 1
@@ -35,6 +40,7 @@ const LeadingVisualContainer: React.FC<React.PropsWithChildren<Pick<TokenBasePro
 const Token = forwardRef((props, forwardedRef) => {
   const {
     as,
+    variant,
     onRemove,
     id,
     leadingVisual: LeadingVisual,
@@ -56,13 +62,18 @@ const Token = forwardRef((props, forwardedRef) => {
     href,
     onClick,
   }
+
   const sx = merge<BetterSystemStyleObject>(
     {
-      backgroundColor: 'neutral.subtle',
-      borderColor: props.isSelected ? 'fg.default' : 'border.subtle',
-      borderStyle: 'solid',
+      ...(variant
+        ? getVariant(variant, props.isSelected)
+        : {
+            backgroundColor: 'neutral.subtle',
+            borderColor: props.isSelected ? 'fg.default' : 'border.subtle',
+            color: props.isSelected ? 'fg.default' : 'fg.muted',
+          }),
       borderWidth: `${tokenBorderWidthPx}px`,
-      color: props.isSelected ? 'fg.default' : 'fg.muted',
+      borderStyle: 'solid',
       maxWidth: '100%',
       paddingRight: !(hideRemoveButton || !onRemove) ? 0 : undefined,
       ...(isTokenInteractive(props)
