@@ -36,7 +36,6 @@ export const InteractiveToken = () => {
       <Token as="a" href="/?path=/story/components-token-features--issue-label-token-custom-colors" text="Link" />
       <Token as="button" onClick={action('clicked')} text="Button" />
       <Token as="span" tabIndex={0} onFocus={action('focused')} text="Focusable Span" />
-      <Token as="button" onClick={action('clicked')} text="Disabled Button" disabled />
     </Box>
   )
 }
@@ -90,7 +89,6 @@ export const InteractiveIssueLabelToken = () => {
       />
       <IssueLabelToken as="button" onClick={action('clicked')} text="Button" />
       <IssueLabelToken as="span" tabIndex={0} onFocus={action('focused')} text="Focusable Span" />
-      <IssueLabelToken as="button" onClick={action('clicked')} text="Disabled Button" disabled />
     </Box>
   )
 }
