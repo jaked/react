@@ -4,7 +4,6 @@ import Button, {ButtonPrimary, ButtonDanger, ButtonProps} from '../deprecated/Bu
 import Box from '../Box'
 import {get} from '../constants'
 import {useOnEscapePress, useProvidedRefOrCreate} from '../hooks'
-import {useFocusTrap} from '../hooks/useFocusTrap'
 import sx, {SxProp} from '../sx'
 import Octicon from '../Octicon'
 import {XIcon} from '@primer/octicons-react'
@@ -187,8 +186,7 @@ type StyledDialogProps = {
   height?: DialogHeight
 } & SxProp
 
-const StyledDialog = styled.div<StyledDialogProps>`
-  display: flex;
+const StyledDialog = styled.dialog<StyledDialogProps>`
   flex-direction: column;
   background-color: ${get('colors.canvas.overlay')};
   box-shadow: ${get('shadows.overlay.shadow')};
@@ -197,9 +195,28 @@ const StyledDialog = styled.div<StyledDialogProps>`
   max-height: calc(100vh - 64px);
   width: ${props => widthMap[props.width ?? ('xlarge' as const)]};
   height: ${props => heightMap[props.height ?? ('auto' as const)]};
+  border: 0;
   border-radius: 12px;
   opacity: 1;
   animation: overlay--dialog-appear ${ANIMATION_DURATION} ${get('animation.easeOutCubic')};
+
+  &[open] {
+    display: flex;
+  }
+
+  &::backdrop {
+    background-color: ${get('colors.primer.canvas.backdrop')};
+    animation: dialog-backdrop-appear ${ANIMATION_DURATION} ${get('animation.easeOutCubic')};
+  }
+
+  @keyframes dialog-backdrop-appear {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
 
   @keyframes overlay--dialog-appear {
     0% {
@@ -276,10 +293,8 @@ const _Dialog = React.forwardRef<HTMLDivElement, React.PropsWithChildren<DialogP
   }
   const defaultedProps = {...props, title, subtitle, role, dialogLabelId, dialogDescriptionId}
 
-  const dialogRef = useRef<HTMLDivElement>(null)
+  const dialogRef = useRef<HTMLDialogElement>(null)
   useRefObjectAsForwardedRef(forwardedRef, dialogRef)
-  const backdropRef = useRef<HTMLDivElement>(null)
-  useFocusTrap({containerRef: dialogRef, restoreFocusOnCleanUp: true, initialFocusRef: autoFocusedFooterButtonRef})
 
   useOnEscapePress(
     (event: KeyboardEvent) => {
@@ -290,19 +305,7 @@ const _Dialog = React.forwardRef<HTMLDivElement, React.PropsWithChildren<DialogP
   )
 
   React.useEffect(() => {
-    const bodyOverflowStyle = document.body.style.overflow || ''
-    // If the body is already set to overflow: hidden, it likely means
-    // that there is already a modal open. In that case, we should bail
-    // so we don't re-enable scroll after the second dialog is closed.
-    if (bodyOverflowStyle === 'hidden') {
-      return
-    }
-
-    document.body.style.overflow = 'hidden'
-
-    return () => {
-      document.body.style.overflow = bodyOverflowStyle
-    }
+    dialogRef.current?.showModal()
   }, [])
 
   const header = (renderHeader ?? DefaultHeader)(defaultedProps)
@@ -310,26 +313,19 @@ const _Dialog = React.forwardRef<HTMLDivElement, React.PropsWithChildren<DialogP
   const footer = (renderFooter ?? DefaultFooter)(defaultedProps)
 
   return (
-    <>
-      <Portal>
-        <Backdrop ref={backdropRef}>
-          <StyledDialog
-            width={width}
-            height={height}
-            ref={dialogRef}
-            role={role}
-            aria-labelledby={dialogLabelId}
-            aria-describedby={dialogDescriptionId}
-            aria-modal
-            sx={sx}
-          >
-            {header}
-            {body}
-            {footer}
-          </StyledDialog>
-        </Backdrop>
-      </Portal>
-    </>
+    <StyledDialog
+      width={width}
+      height={height}
+      ref={dialogRef}
+      role={role === 'alertdialog' ? role : null}
+      aria-labelledby={dialogLabelId}
+      aria-describedby={dialogDescriptionId}
+      sx={sx}
+    >
+      {header}
+      {body}
+      {footer}
+    </StyledDialog>
   )
 })
 _Dialog.displayName = 'Dialog'
@@ -390,30 +386,13 @@ const buttonTypes = {
   danger: ButtonDanger,
 }
 const Buttons: React.FC<React.PropsWithChildren<{buttons: DialogButtonProps[]}>> = ({buttons}) => {
-  const autoFocusRef = useProvidedRefOrCreate<HTMLButtonElement>(buttons.find(button => button.autoFocus)?.ref)
-  let autoFocusCount = 0
-  const [hasRendered, setHasRendered] = useState(0)
-  useEffect(() => {
-    // hack to work around dialogs originating from other focus traps.
-    if (hasRendered === 1) {
-      autoFocusRef.current?.focus()
-    } else {
-      setHasRendered(hasRendered + 1)
-    }
-  }, [autoFocusRef, hasRendered])
-
   return (
     <>
       {buttons.map((dialogButtonProps, index) => {
         const {content, buttonType = 'normal', autoFocus = false, ...buttonProps} = dialogButtonProps
         const ButtonElement = buttonTypes[buttonType]
         return (
-          <ButtonElement
-            key={index}
-            {...buttonProps}
-            variant={buttonType}
-            ref={autoFocus && autoFocusCount === 0 ? (autoFocusCount++, autoFocusRef) : null}
-          >
+          <ButtonElement key={index} {...buttonProps} variant={buttonType} autoFocus={autoFocus}>
             {content}
           </ButtonElement>
         )
